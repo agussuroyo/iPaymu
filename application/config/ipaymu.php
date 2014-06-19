@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-$config['ipaymu_key'] = 'pwL4k00kLYdPkGSSvUObczESuE16B1';
+$config['ipaymu_key'] = 'YOUR_IPAYMU_KEY';
 $config['ipaymu_status'] = array(
     -1 => 'Sedang diproses',
     0 => 'Pending',
