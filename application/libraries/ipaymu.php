@@ -1,5 +1,6 @@
 <?php
-if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
  * This program is free software: you can redistribute it and/or modify
@@ -79,6 +80,12 @@ class IPaymu {
 
     public function __construct($config = array())
     {
+
+        if (!$this->is_enabled())
+        {
+            log_message('error', 'cURL Class - PHP was not built with cURL enabled. Rebuild PHP with --with-curl to use cURL.');
+        }
+
         $this->CI = & get_instance();
 
         $this->CI->load->config('ipaymu');
@@ -106,6 +113,11 @@ class IPaymu {
                 $this->query[$key] = $val;
             }
         }
+    }
+
+    public function is_enabled()
+    {
+        return function_exists('curl_init');
     }
 
     private function curl($url = '', $query = array())
