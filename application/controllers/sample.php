@@ -22,7 +22,7 @@ class Sample extends CI_Controller {
         $conf['product'] = 'Sample Product';
         $conf['price'] = 50000;
         $conf['quantity'] = 1;
-        $conf['comments'] = 'Sample Commnets';
+        $conf['comments'] = 'Sample Comments';
         $conf['ureturn'] = site_url('callback/ureturn');
         $conf['unotify'] = site_url('callback/unotify');
         $conf['ucancel'] = site_url('callback/ucancel');
