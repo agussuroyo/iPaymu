@@ -129,6 +129,7 @@ class IPaymu {
         {
             return FALSE;
         }
+
         return in_array(strtolower($format), $this->available_format);
     }
 
@@ -165,7 +166,12 @@ class IPaymu {
     public function cektransaksi($id = '', $format = '')
     {
 
-        if ($format !== '' && $this->valid_format($format) && $this->key !== FALSE && $id !== '')
+        if ($format !== '')
+        {
+            $this->format = $format;
+        }
+
+        if ($this->valid_format($this->format) && $this->key !== FALSE && $id !== '')
         {
             $this->format = $format;
             $params['key'] = $this->key;
@@ -180,10 +186,13 @@ class IPaymu {
 
     public function ceksaldo($format = '')
     {
-
-        if ($format !== '' && $this->valid_format($format) && $this->key !== FALSE)
+        if ($format !== '')
         {
             $this->format = $format;
+        }
+
+        if ($this->valid_format($this->format) && $this->key !== FALSE)
+        {
             $params['key'] = $this->key;
             $params['format'] = $this->format;
 
@@ -196,7 +205,12 @@ class IPaymu {
     public function cekstatus($user = '', $format = '')
     {
 
-        if ($format !== '' && $this->valid_format($format) && $this->key !== FALSE && $user !== '')
+        if ($format !== '')
+        {
+            $this->format = $format;
+        }
+
+        if ($this->valid_format($this->format) && $this->key !== FALSE && $user !== '')
         {
             $this->format = $format;
             $params['key'] = $this->key;
