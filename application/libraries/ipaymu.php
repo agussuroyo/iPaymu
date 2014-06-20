@@ -1,6 +1,7 @@
 <?php
 
-if (!defined('BASEPATH')) exit('No direct script access allowed');
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
 
 /*
  * This program is free software: you can redistribute it and/or modify
@@ -31,7 +32,8 @@ class IPaymu {
     var $url_cek_transaksi = 'https://my.ipaymu.com/api/CekTransaksi.php';
     var $url_cek_status = 'https://my.ipaymu.com/api/CekStatus.php';
     var $key = FALSE;
-    var $format = 'json';
+    var $available_format = array('json', 'xml');
+    var $format = '';
     var $action = 'payment';
     var $product = '';
     var $price = '';
@@ -90,6 +92,7 @@ class IPaymu {
 
         $this->CI->load->config('ipaymu');
         $this->key = ($this->CI->config->item('ipaymu_key') !== '') ? $this->CI->config->item('ipaymu_key') : FALSE;
+        $this->format = $this->available_format[0];
 
         if (count($config) > 0)
         {
@@ -118,6 +121,15 @@ class IPaymu {
     public function is_enabled()
     {
         return function_exists('curl_init');
+    }
+
+    public function valid_format($format = '')
+    {
+        if ($format === '')
+        {
+            return FALSE;
+        }
+        return in_array(strtolower($format), $this->available_format);
     }
 
     private function curl($url = '', $query = array())
@@ -150,8 +162,14 @@ class IPaymu {
         return $this->curl($this->payment_url, $this->query);
     }
 
-    public function cektransaksi($id = '', $format = 'json')
+    public function cektransaksi($id = '', $format = '')
     {
+
+        if ($format !== '' && $this->valid_format($format))
+        {
+            $this->format = $format;
+        }
+
         if ($this->key === FALSE || $id === '' || $format === '')
         {
             return FALSE;
@@ -159,26 +177,37 @@ class IPaymu {
 
         $params['key'] = $this->key;
         $params['id'] = $id;
-        $params['format'] = $format;
+        $params['format'] = $this->format;
 
         return $this->curl($this->url_cek_transaksi, $params);
     }
 
-    public function ceksaldo($format = 'json')
+    public function ceksaldo($format = '')
     {
+
+        if ($format !== '' && $this->valid_format($format))
+        {
+            $this->format = $format;
+        }
+
         if ($this->key === FALSE || $format === '')
         {
             return FALSE;
         }
 
         $params['key'] = $this->key;
-        $params['format'] = $format;
+        $params['format'] = $this->format;
 
         return $this->curl($this->url_cek_saldo, $params);
     }
 
-    public function cekstatus($user = '', $format = 'json')
+    public function cekstatus($user = '', $format = '')
     {
+
+        if ($format !== '' && $this->valid_format($format))
+        {
+            $this->format = $format;
+        }
 
         if ($this->key === FALSE || $user === '' || $format === '')
         {
@@ -187,7 +216,7 @@ class IPaymu {
 
         $params['key'] = $this->key;
         $params['user'] = $user;
-        $params['format'] = $format;
+        $params['format'] = $this->format;
 
         return $this->curl($this->url_cek_status, $params);
     }
