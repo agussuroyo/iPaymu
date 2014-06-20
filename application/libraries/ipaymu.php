@@ -165,60 +165,48 @@ class IPaymu {
     public function cektransaksi($id = '', $format = '')
     {
 
-        if ($format !== '' && $this->valid_format($format))
+        if ($format !== '' && $this->valid_format($format) && $this->key !== FALSE && $id !== '')
         {
             $this->format = $format;
+            $params['key'] = $this->key;
+            $params['id'] = $id;
+            $params['format'] = $this->format;
+
+            return $this->curl($this->url_cek_transaksi, $params);
         }
 
-        if ($this->key === FALSE || $id === '' || $format === '')
-        {
-            return FALSE;
-        }
-
-        $params['key'] = $this->key;
-        $params['id'] = $id;
-        $params['format'] = $this->format;
-
-        return $this->curl($this->url_cek_transaksi, $params);
+        return FALSE;
     }
 
     public function ceksaldo($format = '')
     {
 
-        if ($format !== '' && $this->valid_format($format))
+        if ($format !== '' && $this->valid_format($format) && $this->key !== FALSE)
         {
             $this->format = $format;
+            $params['key'] = $this->key;
+            $params['format'] = $this->format;
+
+            return $this->curl($this->url_cek_saldo, $params);
         }
 
-        if ($this->key === FALSE || $format === '')
-        {
-            return FALSE;
-        }
-
-        $params['key'] = $this->key;
-        $params['format'] = $this->format;
-
-        return $this->curl($this->url_cek_saldo, $params);
+        return FALSE;
     }
 
     public function cekstatus($user = '', $format = '')
     {
 
-        if ($format !== '' && $this->valid_format($format))
+        if ($format !== '' && $this->valid_format($format) && $this->key !== FALSE && $user !== '')
         {
             $this->format = $format;
+            $params['key'] = $this->key;
+            $params['user'] = $user;
+            $params['format'] = $this->format;
+
+            return $this->curl($this->url_cek_status, $params);
         }
 
-        if ($this->key === FALSE || $user === '' || $format === '')
-        {
-            return FALSE;
-        }
-
-        $params['key'] = $this->key;
-        $params['user'] = $user;
-        $params['format'] = $this->format;
-
-        return $this->curl($this->url_cek_status, $params);
+        return FALSE;
     }
 
     public function unotify($params = array())
