@@ -15,9 +15,9 @@ class Sample extends CI_Controller {
 
     public function index()
     {
-        
+
         $this->load->heper('url');
-        
+
         /** Initialize Config */
         $conf['product'] = 'Sample Product';
         $conf['price'] = 50000;
@@ -37,6 +37,14 @@ class Sample extends CI_Controller {
         /** Result Response */
         $resp = json_decode($response);
         print_r($resp);
+    }
+
+    public function ceksaldo()
+    {
+        /** Checking Saldo */
+        $this->load->library('ipaymu');
+        $response = $this->ipaymu->ceksaldo();
+        print_r($response);
     }
 
 }
