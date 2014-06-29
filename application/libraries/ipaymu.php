@@ -1,7 +1,6 @@
 <?php
 
-if (!defined('BASEPATH'))
-    exit('No direct script access allowed');
+(!defined( 'BASEPATH' )) ? exit( 'No direct script access allowed' ) : '';
 
 /*
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +23,8 @@ if (!defined('BASEPATH'))
  * Website  : http://agussuroyo.com/
  */
 
-class IPaymu {
+class IPaymu
+{
 
     /** Requirements Params */
     var $CI;
@@ -32,7 +32,7 @@ class IPaymu {
     var $url_cek_transaksi = 'https://my.ipaymu.com/api/CekTransaksi.php';
     var $url_cek_status = 'https://my.ipaymu.com/api/CekStatus.php';
     var $key = FALSE;
-    var $available_format = array('json', 'xml');
+    var $available_format = array( 'json', 'xml' );
     var $format = '';
     var $action = 'payment';
     var $product = '';
@@ -80,38 +80,34 @@ class IPaymu {
     var $paypal_buyer_status = '';
     var $paypal_buyer_name = '';
 
-    public function __construct($config = array())
+    public function __construct( $config = array() )
     {
 
-        if (!$this->is_enabled())
-        {
-            log_message('error', 'cURL Class - PHP was not built with cURL enabled. Rebuild PHP with --with-curl to use cURL.');
+        if ( !$this->is_enabled() ) {
+            log_message( 'error', 'cURL Class - PHP was not built with cURL enabled. Rebuild PHP with --with-curl to use cURL.' );
         }
 
         $this->CI = & get_instance();
 
-        $this->CI->load->config('ipaymu');
-        $this->key = ($this->CI->config->item('ipaymu_key') !== '') ? $this->CI->config->item('ipaymu_key') : FALSE;
+        $this->CI->load->config( 'ipaymu' );
+        $this->key = ($this->CI->config->item( 'ipaymu_key' ) !== '') ? $this->CI->config->item( 'ipaymu_key' ) : FALSE;
         $this->format = $this->available_format[0];
 
-        if (count($config) > 0)
-        {
-            $this->initialize($config);
+        if ( count( $config ) > 0 ) {
+            $this->initialize( $config );
         }
 
-        log_message('debug', "iPaymu Class Initialized");
+        log_message( 'debug', "iPaymu Class Initialized" );
     }
 
-    function initialize($config = array())
+    function initialize( $config = array() )
     {
         $this->query = array();
         $this->query['key'] = $this->key;
         $this->query['format'] = $this->format;
         $this->query['action'] = $this->action;
-        foreach ($config as $key => $val)
-        {
-            if (isset($this->$key))
-            {
+        foreach ( $config as $key => $val ) {
+            if ( isset( $this->$key ) ) {
                 $this->$key = $val;
                 $this->query[$key] = $val;
             }
@@ -120,119 +116,107 @@ class IPaymu {
 
     public function is_enabled()
     {
-        return function_exists('curl_init');
+        return function_exists( 'curl_init' );
     }
 
-    public function valid_format($format = '')
+    public function valid_format( $format = '' )
     {
-        if ($format === '')
-        {
+        if ( $format === '' ) {
             return FALSE;
         }
 
-        return in_array(strtolower($format), $this->available_format);
+        return in_array( strtolower( $format ), $this->available_format );
     }
 
-    private function curl($url = '', $query = array())
+    private function curl( $url = '', $query = array(), $transfer = TRUE, $ssl_verify = FALSE )
     {
-        if ($url === '')
-        {
+        if ( $url === '' ) {
             return FALSE;
         }
         $this->curl = curl_init();
-        $this->http_query_builder = http_build_query($query);
-        $this->count_http_query_builder = count($query);
-        curl_setopt($this->curl, CURLOPT_URL, $url);
-        curl_setopt($this->curl, CURLOPT_POST, $this->count_http_query_builder);
-        curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->http_query_builder);
-        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        $request = curl_exec($this->curl);
-        $return = ($request === FALSE) ? curl_error($this->curl) : $request;
-        curl_close($this->curl);
+        $this->http_query_builder = http_build_query( $query );
+        $this->count_http_query_builder = count( $query );
+        curl_setopt( $this->curl, CURLOPT_URL, $url );
+        curl_setopt( $this->curl, CURLOPT_POST, $this->count_http_query_builder );
+        curl_setopt( $this->curl, CURLOPT_POSTFIELDS, $this->http_query_builder );
+        curl_setopt( $this->curl, CURLOPT_RETURNTRANSFER, $transfer );
+        curl_setopt( $this->curl, CURLOPT_SSL_VERIFYPEER, $ssl_verify );
+        $request = curl_exec( $this->curl );
+        $return = ($request === FALSE) ? curl_error( $this->curl ) : $request;
+        curl_close( $this->curl );
         return $return;
     }
 
     public function response()
     {
-        if ($this->key === FALSE || empty($this->query) || $this->payment_url === '')
-        {
+        if ( $this->key === FALSE || empty( $this->query ) || $this->payment_url === '' ) {
             return FALSE;
         }
 
-        return $this->curl($this->payment_url, $this->query);
+        return $this->curl( $this->payment_url, $this->query );
     }
 
-    public function cektransaksi($id = '', $format = '')
+    public function cektransaksi( $id = '', $format = '' )
     {
 
-        if ($format !== '')
-        {
+        if ( $format !== '' ) {
             $this->format = $format;
         }
 
-        if ($this->valid_format($this->format) && $this->key !== FALSE && $id !== '')
-        {
+        if ( $this->valid_format( $this->format ) && $this->key !== FALSE && $id !== '' ) {
             $this->format = $format;
             $params['key'] = $this->key;
             $params['id'] = $id;
             $params['format'] = $this->format;
 
-            return $this->curl($this->url_cek_transaksi, $params);
+            return $this->curl( $this->url_cek_transaksi, $params );
         }
 
         return FALSE;
     }
 
-    public function ceksaldo($format = '')
+    public function ceksaldo( $format = '' )
     {
-        if ($format !== '')
-        {
+        if ( $format !== '' ) {
             $this->format = $format;
         }
 
-        if ($this->valid_format($this->format) && $this->key !== FALSE)
-        {
+        if ( $this->valid_format( $this->format ) && $this->key !== FALSE ) {
             $params['key'] = $this->key;
             $params['format'] = $this->format;
 
-            return $this->curl($this->url_cek_saldo, $params);
+            return $this->curl( $this->url_cek_saldo, $params );
         }
 
         return FALSE;
     }
 
-    public function cekstatus($user = '', $format = '')
+    public function cekstatus( $user = '', $format = '' )
     {
 
-        if ($format !== '')
-        {
+        if ( $format !== '' ) {
             $this->format = $format;
         }
 
-        if ($this->valid_format($this->format) && $this->key !== FALSE && $user !== '')
-        {
+        if ( $this->valid_format( $this->format ) && $this->key !== FALSE && $user !== '' ) {
             $this->format = $format;
             $params['key'] = $this->key;
             $params['user'] = $user;
             $params['format'] = $this->format;
 
-            return $this->curl($this->url_cek_status, $params);
+            return $this->curl( $this->url_cek_status, $params );
         }
 
         return FALSE;
     }
 
-    public function unotify($params = array())
+    public function unotify( $params = array() )
     {
-        if (!is_array($params) || empty($params))
-        {
+        if ( !is_array( $params ) || empty( $params ) ) {
             return FALSE;
         }
-        foreach ($params as $key => $val)
-        {
-            if (isset($this->$key))
-            {
+        foreach ( $params as $key => $val ) {
+            if ( isset( $this->$key ) ) {
                 $this->$key = $val;
                 $this->unotify_query[$key] = $val;
             }
@@ -240,18 +224,16 @@ class IPaymu {
         return $this->unotify_query;
     }
 
-    public function callback($method = '', $params = array())
+    public function callback( $method = '', $params = array() )
     {
-        if ($method !== '')
-        {
+        if ( $method !== '' ) {
             $return = '';
-            switch (strtolower($method))
-            {
+            switch ( strtolower( $method ) ) {
                 case 'ureturn':
                     $return = $params;
                     break;
                 case 'unotify':
-                    $return = $this->unotify($params);
+                    $return = $this->unotify( $params );
                     break;
                 case 'ucancel':
                     $return = $params;
@@ -261,8 +243,7 @@ class IPaymu {
                     break;
             }
             return $return;
-        } else
-        {
+        } else {
             return FALSE;
         }
     }
